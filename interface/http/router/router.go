@@ -20,8 +20,7 @@ func SetupRouter() *gin.Engine {
 		})
 	})
 
-	v1 := router.Group("/v1")
-	routes.UserRoutes(v1, db.DB, redis.RDB)
+	routes.UserRoutes(router, db.DB, redis.RDB)
 
 	return router
 }

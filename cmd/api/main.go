@@ -1,0 +1,63 @@
+package main
+
+import (
+	"fmt"
+	"time"
+
+	"refina-auth/config/db"
+	"refina-auth/config/env"
+	"refina-auth/config/log"
+	"refina-auth/config/redis"
+	"refina-auth/interface/http/router"
+)
+
+var startTime time.Time
+
+func init() {
+	startTime = time.Now() // Record application start time
+	log.SetupLogger()      // Initialize the logger configuration
+
+	var err error
+	var missing []string
+	if missing, err = env.LoadByViper(); err != nil {
+		log.Error("Failed to read JSON config file:" + err.Error())
+		if missing, err = env.LoadNative(); err != nil {
+			log.Log.Fatalf("Failed to load environment variables: %v", err)
+		}
+		log.SetupLogger()
+		log.Info("Environment variables by .env file loaded successfully")
+	} else {
+		log.SetupLogger()
+		log.Info("Environment variables by Viper loaded successfully")
+	}
+
+	if len(missing) > 0 {
+		for _, envVar := range missing {
+			log.Warn("Missing environment variable: " + envVar)
+		}
+	}
+
+	log.Info("Setup Database Connection Start")
+	db.SetupDatabase(env.Cfg.Database) // Initialize the database connection and run migrations
+	log.Info("Setup Database Connection Success")
+
+	log.Info("Setup Redis Connection Start")
+	redis.SetupRedisDatabase(env.Cfg.Redis) // Initialize the Redis connection
+	log.Info("Setup Redis Connection Success")
+
+	initDuration := time.Since(startTime)
+	log.Info(fmt.Sprintf("Initialization completed in %v", initDuration))
+
+	log.Info("Starting Refina API...")
+}
+
+func main() {
+	defer log.Info("Refina API stopped")
+	
+	r := router.SetupRouter() // Set up the HTTP router
+
+	totalStartupDuration := time.Since(startTime)
+	log.Info(fmt.Sprintf("Refina API is ready and listening on port %s (Total startup time: %v)", env.Cfg.Server.Port, totalStartupDuration))
+
+	r.Run(":" + env.Cfg.Server.Port)
+}

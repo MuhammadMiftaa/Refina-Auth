@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func UserRoutes(version *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
+func UserRoutes(version *gin.Engine, db *gorm.DB, redis *redis.Client) {
 	User_repo := repository.NewUsersRepository(db)
 	User_serv := service.NewUsersService(User_repo)
 

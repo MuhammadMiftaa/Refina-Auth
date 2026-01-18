@@ -4,10 +4,6 @@ var (
 	DEVELOPMENT_MODE = "development"
 	STAGING_MODE     = "staging"
 	PRODUCTION_MODE  = "production"
-
-	REPORT_STATUS_PROCESSING = "processing"
-	REPORT_STATUS_COMPLETED  = "completed"
-	REPORT_STATUS_FAILED     = "failed"
 )
 
 type GitHubPlan struct {

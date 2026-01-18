@@ -11,6 +11,7 @@ CREATE TABLE users (
     role VARCHAR(100) DEFAULT 'user'::VARCHAR NOT NULL,
     email_verfied_at timestamp without time zone
 );
+-- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
